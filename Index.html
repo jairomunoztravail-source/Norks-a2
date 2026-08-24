@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Norsk A2 - iPhone</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#07111f">
+<style>
+:root{--bg:#07111f;--card:#101d33;--card2:#162544;--text:#e6edf7;--muted:#8aa0c2;--accent:#5ee1a8;--en:#60a5fa;--ei:#f87171;--et:#34d399}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,system-ui;background:var(--bg);color:var(--text);padding-bottom:90px}
+header{position:sticky;top:0;background:rgba(7,17,31,.92);backdrop-filter:blur(16px);padding-top:env(safe-area-inset-top);border-bottom:1px solid #1e3356}
+.topbar{display:flex;justify-content:space-between;padding:14px 16px}h1{margin:0;font-size:22px}
+nav{display:flex;gap:8px;padding:0 16px 14px}.nav-btn{flex:1;background:var(--card2);border:1px solid #223a61;color:var(--muted);padding:12px;border-radius:14px}.nav-btn.active{background:var(--accent);color:#052;font-weight:800}
+main{max-width:720px;margin:0 auto;padding:16px}.view{display:none}.view.active{display:block}
+.hero{background:var(--card);border:1px solid #1e3356;border-radius:18px;padding:16px;margin-bottom:16px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center;margin:12px 0}.stats span{font-size:22px;font-weight:800;display:block}small{color:var(--muted)}
+.modes{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.mode{background:var(--card2);border:1px solid #223a61;color:var(--text);padding:10px 14px;border-radius:22px}.mode.active{background:var(--text);color:var(--bg);font-weight:700}
+button.primary{background:var(--accent);color:#052;border:0;padding:14px 20px;border-radius:14px;font-weight:800;width:100%;font-size:18px}button.small{background:var(--card2);border:1px solid #223a61;color:var(--muted);padding:10px 14px;border-radius:12px}
+.card{background:var(--card);border:1px solid #1e3356;border-radius:18px;padding:20px}.prompt{font-size:28px;font-weight:800;margin:14px 0}.prompt.g-en{color:var(--en)}.prompt.g-ei{color:var(--ei)}.prompt.g-et{color:var(--et)}
+.choice{display:block;width:100%;text-align:left;background:var(--card2);border:1px solid #223a61;color:var(--text);padding:16px;border-radius:14px;margin:8px 0;font-size:17px}.choice.correct{border-color:#22c55e;background:rgba(34,197,94,.18)}.choice.wrong{border-color:#ef4444;background:rgba(239,68,68,.18)}
+.answer-row{display:flex;gap:8px;margin-top:12px}.answer-row input{flex:1;background:#0b1a31;border:1px solid #223a61;border-radius:12px;padding:14px;color:var(--text);font-size:17px}
+.feedback{margin-top:14px;padding:14px;border-radius:12px}.feedback.ok{background:rgba(34,197,94,.15);border:1px solid #15803d}.feedback.bad{background:rgba(239,68,68,.15);border:1px solid #7f1d1d}.hidden{display:none!important}
+.study-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.muted{color:var(--muted);font-size:13px}
+.vocab-item{background:var(--card);border:1px solid #1e3356;border-radius:14px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between}
+</style>
+</head>
+<body>
+<header><div class="topbar"><h1>🇳🇴 Norsk A2</h1><span class="muted">iPhone 16</span></div>
+<nav><button class="nav-btn active" data-view="home">Accueil</button><button class="nav-btn" data-view="study">Étudier</button><button class="nav-btn" data-view="vocab">Mots</button></nav></header>
+<main>
+<section id="home" class="view active">
+<div class="hero"><p id="heroText"></p>
+<div class="stats"><div><span id="sNew">0</span><small>Nouveau</small></div><div><span id="sLearn">0</span><small>En cours</small></div><div><span id="sKnown">0</span><small>Connu</small></div><div><span id="sMast">0</span><small>Maîtrisé</small></div></div>
+<p class="muted"><span id="due">0</span> à réviser</p></div>
+<div class="modes"><button class="mode active" data-mode="mixed">Mix A2</button><button class="mode" data-mode="errors">Mes erreurs</button><button class="mode" data-mode="gender">en/ei/et</button></div>
+<button id="startBtn" class="primary">Démarrer 15 cartes</button>
+<p class="muted" style="margin-top:16px">💡 iPhone : Partage > Sur l'écran d'accueil = app. Envoie le lien à ta femme.</p>
+</section>
+<section id="study" class="view">
+<div class="study-head"><button id="quitBtn" class="small">← Accueil</button><span><span id="idx">1</span>/<span id="tot">15</span></span><span id="cat" class="muted"></span></div>
+<div class="card"><div id="type" class="muted"></div><div id="prompt" class="prompt"></div><div id="answers"></div><div id="fb" class="feedback hidden"></div><div style="display:flex;justify-content:space-between;margin-top:16px"><button id="speakBtn" class="small">🔊 Écouter</button><button id="nextBtn" class="primary hidden" style="width:auto">Suivant →</button></div></div>
+</section>
+<section id="vocab" class="view"><input id="search" type="search" placeholder="Rechercher" style="width:100%;background:#162544;border:1px solid #223a61;border-radius:12px;padding:12px;color:#e6edf7;margin-bottom:12px"><div id="vList"></div></section>
+</main>
+<script>
+const VOCABULARY=[{"id":"a1_001","no":"en gutt","fr":"un garçon","level":"A1","category":"personnes","type":"nom","exampleNo":"En gutt leker i parken.","exampleFr":"Un garçon joue dans le parc."},{"id":"a1_002","no":"ei jente","fr":"une fille","level":"A1","category":"personnes","type":"nom","exampleNo":"Ei jente leser ei bok.","exampleFr":"Une fille lit un livre."},{"id":"a1_003","no":"et barn","fr":"un enfant","level":"A1","category":"personnes","type":"nom","exampleNo":"Et barn sover.","exampleFr":"Un enfant dort."},{"id":"a1_004","no":"en mann","fr":"un homme","level":"A1","category":"personnes","type":"nom","exampleNo":"En mann jobber her.","exampleFr":"Un homme travaille ici."},{"id":"a1_005","no":"ei kvinne","fr":"une femme","level":"A1","category":"personnes","type":"nom","exampleNo":"Ei kvinne drikker kaffe.","exampleFr":"Une femme boit du café."},{"id":"a1_006","no":"et hus","fr":"une maison","level":"A1","category":"maison","type":"nom","exampleNo":"Vi bor i et hus.","exampleFr":"Nous habitons dans une maison."},{"id":"a1_007","no":"en bil","fr":"une voiture","level":"A1","category":"transport","type":"nom","exampleNo":"En bil er rød.","exampleFr":"Une voiture est rouge."},{"id":"a1_008","no":"ei bok","fr":"un livre","level":"A1","category":"école","type":"nom","exampleNo":"Ei bok ligger på bordet.","exampleFr":"Un livre est sur la table."},{"id":"a1_009","no":"et bord","fr":"une table","level":"A1","category":"maison","type":"nom","exampleNo":"Bordet er stort.","exampleFr":"La table est grande."},{"id":"a1_010","no":"en stol","fr":"une chaise","level":"A1","category":"maison","type":"nom","exampleNo":"En stol står ved bordet.","exampleFr":"Une chaise est près de la table."},{"id":"a1_011","no":"å være","fr":"être","level":"A1","category":"verbes","type":"verbe","exampleNo":"Jeg er norsk.","exampleFr":"Je suis norvégien."},{"id":"a1_012","no":"å ha","fr":"avoir","level":"A1","category":"verbes","type":"verbe","exampleNo":"Jeg har en hund.","exampleFr":"J'ai un chien."},{"id":"a1_013","no":"å bo","fr":"habiter","level":"A1","category":"verbes","type":"verbe","exampleNo":"Jeg bor i Limoges.","exampleFr":"J'habite à Limoges."},{"id":"a1_014","no":"hei","fr":"salut","level":"A1","category":"salutations","type":"phrase","exampleNo":"Hei, hvordan har du det?","exampleFr":"Salut, comment vas-tu?"},{"id":"a1_015","no":"takk","fr":"merci","level":"A1","category":"salutations","type":"phrase","exampleNo":"Takk for hjelpen!","exampleFr":"Merci pour l'aide!"},{"id":"a1_016","no":"hvor er toalettet?","fr":"où sont les toilettes?","level":"A1","category":"voyage","type":"phrase","exampleNo":"Unnskyld, hvor er toalettet?","exampleFr":"Excusez-moi, où sont les toilettes?"},{"id":"a1_017","no":"jeg vil gjerne betale","fr":"je voudrais payer","level":"A2","category":"restaurant","type":"phrase","exampleNo":"Unnskyld, jeg vil gjerne betale.","exampleFr":"Excusez-moi, je voudrais payer."},{"id":"a1_018","no":"et eple","fr":"une pomme","level":"A1","category":"nourriture","type":"nom","exampleNo":"Jeg spiser et eple.","exampleFr":"Je mange une pomme."},{"id":"a1_019","no":"en dag","fr":"un jour","level":"A1","category":"temps","type":"nom","exampleNo":"En dag i uka.","exampleFr":"Un jour de la semaine."},{"id":"a1_020","no":"å spise","fr":"manger","level":"A1","category":"verbes","type":"verbe","exampleNo":"Vi spiser frokost klokka åtte.","exampleFr":"Nous mangeons le petit-déj à 8h."}];
+const STORE="norsk_a2_db";
+function $(s){return document.querySelector(s)}
+function $$(s){return [...document.querySelectorAll(s)]}
+let mode="mixed",session=[],pos=0,cur=null,prog={},voices=[];
+function norm(s){return (s||"").toLowerCase().trim().replace(/[.,!?;:]/g," ").replace(/\s+/g," ").trim()}
+function strip(s){return s.replace(/^(en|ei|et|å|un|une|le|la)\s+/i,"").trim()}
+function gender(no){let m=no.match(/^(en|ei|et)\s+/i);return m?m[1].toLowerCase():null}
+function color(no){let g=gender(no); if(!g) return no; return `<span class="g-${g}">${g}</span> ${no.slice(g.length).trim()}`}
+function accepted(inp,ans,strict){let a=norm(inp),b=norm(ans); if(a===b) return true; if(strict) return false; return strip(a)===strip(b)}
+function shuf(a){let r=[...a]; for(let i=r.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1)); [r[i],r[j]]=[r[j],r[i]]} return r}
+function load(){try{prog=JSON.parse(localStorage.getItem(STORE)||"{}")}catch(e){prog={}}}
+function save(){localStorage.setItem(STORE,JSON.stringify(prog))}
+function getP(id){return prog[id]||{status:"new",c:0,i:0,streak:0,next:0}}
+function upd(id,ok){let p=getP(id); let now=Date.now(); if(ok){p.c++;p.streak++} else {p.i++;p.streak=0} if(p.c===0) p.status="new"; else if(p.streak>=5) p.status="mastered"; else if(p.streak>=2) p.status="known"; else p.status="learning"; p.next=now + (p.status==="mastered"?14*86400000:p.status==="known"?3*86400000:ok?6*3600000:60000); prog[id]=p; save()}
+function refresh(){let s={new:0,learning:0,known:0,mastered:0},due=0,now=Date.now(); VOCABULARY.forEach(v=>{let p=getP(v.id); s[p.status]++; if(p.status==="new"||p.next<=now) due++}); $("#sNew").textContent=s.new; $("#sLearn").textContent=s.learning; $("#sKnown").textContent=s.known; $("#sMast").textContent=s.mastered; $("#due").textContent=due; $("#heroText").textContent=`${VOCABULARY.length} mots A1-A2. Priorité erreurs.`}
+function choose(){let withP=VOCABULARY.map(v=>({v,p:getP(v.id)})); let sel=[]; if(mode==="errors"){sel=withP.filter(x=>x.p.i>0).sort((a,b)=>b.p.i-a.p.i).slice(0,15)} else if(mode==="gender"){sel=shuf(withP.filter(x=>gender(x.v.no))).slice(0,15)} else {let due=withP.filter(x=>x.p.next<=Date.now()&&x.p.status!=="new"), fresh=withP.filter(x=>x.p.status==="new"), rest=shuf(withP); let m=[...due,...fresh,...rest]; let ids=new Set(); sel=m.filter(x=>!ids.has(x.v.id)&&ids.add(x.v.id)).slice(0,15)} return sel.map(x=>x.v)}
+function start(){session=choose(); pos=0; show("study"); render()}
+function show(id){document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id)); document.querySelectorAll(".nav-btn").forEach(b=>b.classList.toggle("active",b.dataset.view===id)); if(id==="vocab") renderVocab()}
+function render(){if(pos>=session.length){show("home"); refresh(); return} let v=session[pos]; let types=mode==="gender"?["gender"]:["no-fr","fr-no","type-no","type-fr"]; let t=types[Math.floor(Math.random()*types.length)]; cur={v,t,ans:false}; $("#idx").textContent=pos+1; $("#tot").textContent=session.length; $("#cat").textContent=v.level+" · "+v.category; $("#fb").className="feedback hidden"; $("#nextBtn").classList.add("hidden"); $("#answers").innerHTML=""; let prompts={"no-fr":"Que signifie :","fr-no":"Comment dit-on :","type-no":"Écris en norvégien :","type-fr":"Écris en français :","gender":"Quel genre?"}; $("#type").textContent=prompts[t]; if(t==="no-fr"){$("#prompt").innerHTML=color(v.no); renderChoices([v.fr,...shuf(VOCABULARY.filter(x=>x.id!==v.id)).slice(0,3).map(x=>x.fr)], v.fr)} else if(t==="fr-no"){$("#prompt").textContent=v.fr; renderChoices([v.no,...shuf(VOCABULARY.filter(x=>x.id!==v.id)).slice(0,3).map(x=>x.no)], v.no, true)} else if(t==="type-no"){$("#prompt").textContent=v.fr; renderInput(v.no,!!gender(v.no))} else if(t==="type-fr"){$("#prompt").innerHTML=color(v.no); renderInput(v.fr)} else if(t==="gender"){$("#prompt").innerHTML=strip(v.no)+"<br><small class='muted'>"+v.fr+"</small>"; renderGender(v.no)}}
+function renderChoices(opts,ans,strict){$("#answers").innerHTML=""; shuf(opts).forEach(txt=>{let b=document.createElement("button"); b.className="choice"; b.innerHTML=txt.match(/^(en|ei|et)/)?color(txt):txt; b.onclick=()=>{if(cur.ans) return; let ok=accepted(txt,ans,strict); b.classList.add(ok?"correct":"wrong"); if(!ok) [...$("#answers").children].find(x=>accepted(x.textContent,ans,strict))?.classList.add("correct"); grade(ok,ans)}; $("#answers").appendChild(b)})}
+function renderGender(full){let g=gender(full); $("#answers").innerHTML=""; ["en","ei","et"].forEach(o=>{let b=document.createElement("button"); b.className="choice"; b.innerHTML=`<strong class="g-${o}">${o}</strong> - ${o==="en"?"masculin":o==="ei"?"féminin":"neutre"}`; b.onclick=()=>{if(cur.ans) return; let ok=o===g; b.classList.add(ok?"correct":"wrong"); grade(ok,full)}; $("#answers").appendChild(b)})}
+function renderInput(ans,strict){let row=document.createElement("div"); row.className="answer-row"; let inp=document.createElement("input"); inp.type="text"; inp.autocapitalize="off"; let btn=document.createElement("button"); btn.className="primary"; btn.style.width="auto"; btn.textContent="Valider"; let sub=()=>{if(cur.ans) return; grade(accepted(inp.value,ans,strict),ans)}; btn.onclick=sub; inp.onkeydown=e=>{if(e.key==="Enter") sub()}; row.append(inp,btn); $("#answers").appendChild(row); setTimeout(()=>inp.focus(),80)}
+function grade(ok,ans){cur.ans=true; upd(cur.v.id,ok); let fb=$("#fb"); fb.className="feedback "+(ok?"ok":"bad"); fb.innerHTML= ok? `✅ Correct` : `❌ <strong>${ans}</strong><br><small>${cur.v.exampleNo}<br><em>${cur.v.exampleFr}</em></small>`; $("#nextBtn").classList.remove("hidden"); refresh()}
+function renderVocab(){let q=norm($("#search").value); let list=VOCABULARY.filter(v=>!q||norm(v.no+" "+v.fr).includes(q)); $("#vList").innerHTML=list.map(v=>{let p=getP(v.id); return `<div class="vocab-item"><div><strong>${color(v.no)}</strong><br>${v.fr}<br><small class='muted'>${v.exampleNo}</small></div><small>${p.status}</small></div>`}).join("")}
+function speak(){let txt=cur?.v?.no||""; if(!txt) return; speechSynthesis.cancel(); let u=new SpeechSynthesisUtterance(txt); u.lang="nb-NO"; u.rate=0.85; let vs=speechSynthesis.getVoices(); let nb=vs.find(v=>/nb-NO|no-NO|Norwegian/i.test(v.lang+" "+v.name)); if(nb) u.voice=nb; speechSynthesis.speak(u)}
+function init(){load(); refresh(); $("#startBtn").onclick=start; $("#quitBtn").onclick=()=>show("home"); $("#nextBtn").onclick=()=>{pos++; render()}; $("#speakBtn").onclick=speak; document.querySelectorAll(".nav-btn").forEach(b=>b.onclick=()=>show(b.dataset.view)); document.querySelectorAll(".mode").forEach(b=>b.onclick=()=>{document.querySelectorAll(".mode").forEach(x=>x.classList.remove("active")); b.classList.add("active"); mode=b.dataset.mode}); $("#search").oninput=renderVocab;}
+init();
+</script>
+</body>
+</html>
